@@ -13,7 +13,8 @@
 int main(int argc, char **argv){
 
     int mpiRank, mpiSize;
-    MPI_Init(&argc,&argv);
+    int mpi_provided_mode;
+    MPI_Init_thread(&argc,&argv, MPI_THREAD_MULTIPLE, &mpi_provided_mode);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
 

@@ -1,5 +1,5 @@
 ifeq ($(VENDOR),cray)
-	MPICXX=cc -dynamic
+	MPICXX=cc
 else
 	MPICXX=mpic++
 endif
@@ -24,7 +24,7 @@ $(STMANFILES):
 	cd ..; make ln;
 
 cl:
-	rm -rf *.casa *.out
+	rm -rf *.casa *.out *.table
 
 clean:cl
 	rm -rf write read *.dSYM *.so *.table
