@@ -24,7 +24,7 @@ $(STMANFILES):
 	cd ..; make ln;
 
 cl:
-	rm -rf *.casa *.out *.table
+	rm -rf *.casa *.out *.table *.o* *.e*
 
 clean:cl
 	rm -rf write read *.dSYM *.so *.table
