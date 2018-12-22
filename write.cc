@@ -22,12 +22,23 @@ size_t cell_size_min = 10;
 size_t cell_size_max = 25;
 size_t columns_min = 1;
 size_t columns_max = 32;
-size_t rows_min = 5;
-size_t rows_max = 20;
+size_t rows_min = 10;
+size_t rows_max = 18;
 
 bool if_delete = true;
 
 int main(int argc, char **argv){
+
+    vector<string> stmans;
+    stmans.push_back("AdiosStMan");
+    stmans.push_back("Adios2StMan");
+    stmans.push_back("Hdf5StMan");
+    std::string stman_type = stmans[rand()%3];
+
+    if(stman_type == "AdiosStMan")
+    {
+        size_t columns_max = 1;
+    }
 
     int mpiRank, mpiSize;
     int mpi_provided_mode;
@@ -43,11 +54,6 @@ int main(int argc, char **argv){
     size_t rows = pow(2, rows_exp);
     size_t columns = rand() % columns_max + columns_min;
 
-    vector<string> stmans;
-    stmans.push_back("AdiosStMan");
-    stmans.push_back("Adios2StMan");
-    stmans.push_back("Hdf5StMan");
-    std::string stman_type = stmans[rand()%3];
 
     auto start_time = std::chrono::system_clock::now();
     auto end_time = std::chrono::system_clock::now();
