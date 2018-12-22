@@ -7,21 +7,15 @@ endif
 CXX=g++
 
 CCFLAGS=-std=c++11
-LDFLAGS=-lcasa_tables -lcasa_casa
-STMANFILES=libadios2stman.so
-STMANFILES=
+LDFLAGS=-lcasa_tables -lcasa_casa -lhdf5stman -ladiosstman
 
-mpi:write.cc read.cc $(STMANFILES)
-	$(MPICXX) -g write.cc $(CCFLAGS) $(LDFLAGS) $(STMANFILES) -o write -DHAVE_MPI
-	$(MPICXX) -g read.cc $(CCFLAGS) $(LDFLAGS) $(STMANFILES) -o read -DHAVE_MPI
+mpi:write.cc read.cc
+	$(MPICXX) -g write.cc $(CCFLAGS) $(LDFLAGS) -o write -DHAVE_MPI
+	$(MPICXX) -g read.cc $(CCFLAGS) $(LDFLAGS) -o read -DHAVE_MPI
 
-$(TARGET): $(TARGET:=.cc) $(STMANFILES)
-	$(CXX) $@.cc -o $@ $(CCFLAGS) $(LDFLAGS) $(STMANFILES) 
+$(TARGET): $(TARGET:=.cc)
+	$(CXX) $@.cc -o $@ $(CCFLAGS) $(LDFLAGS)
 
-
-
-$(STMANFILES):  
-	cd ..; make ln;
 
 cl:
 	rm -rf *.casa *.out *.table *.o* *.e*

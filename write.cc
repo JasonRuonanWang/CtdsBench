@@ -5,6 +5,8 @@
 #include <casacore/tables/Tables/ArrColDesc.h>
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/DataMan/Adios2StMan.h>
+#include <casacore/tables/DataMan/AdiosStMan.h>
+#include <casacore/tables/DataMan/Hdf5StMan.h>
 #include <casacore/casa/namespace.h>
 #include <mpi.h>
 
@@ -16,11 +18,14 @@
 using namespace std;
 using namespace nlohmann;
 
-size_t arraysize_min = 10;
-size_t arraysize_max = 30;
+size_t cell_size_min = 10;
+size_t cell_size_max = 30;
+size_t columns_min = 1;
+size_t columns_max = 64;
 size_t rows_min = 5;
 size_t rows_max = 20;
-size_t columns_range = 1;
+
+bool if_delete = true;
 
 int main(int argc, char **argv){
 
@@ -30,16 +35,20 @@ int main(int argc, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
 
-    if(argc < 6)
-    {
-        cout << "./write cell_size rows columns manager if_delete_file" << endl;
-    }
+    srand (static_cast <unsigned> (time(0)));
 
-    size_t cell_size = atoi(argv[1]);
-    size_t rows = atoi(argv[2]);
-    size_t columns = atoi(argv[3]);
-    std::string stman_type = argv[4];
-    bool if_delete = atoi(argv[5]);
+    float cell_size_exp = cell_size_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(cell_size_max - cell_size_min)) );
+    size_t cell_size = pow(2, cell_size_exp);
+    float rows_exp = rows_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(rows_max - rows_min)) );
+    size_t rows = pow(2, rows_exp);
+    size_t columns = rand() % columns_max + columns_min;
+
+    vector<string> stmans;
+    stmans.push_back("AdiosStMan");
+    stmans.push_back("Adios2StMan");
+    stmans.push_back("Hdf5StMan");
+    std::string stman_type = stmans[rand()%3];
+    std::cout << stman_type << std::endl;
 
     auto start_time = std::chrono::system_clock::now();
     auto end_time = std::chrono::system_clock::now();
@@ -61,6 +70,14 @@ int main(int argc, char **argv){
         if(stman_type == "Adios2StMan")
         {
             stman = new Adios2StMan(MPI_COMM_WORLD);
+        }
+        else if(stman_type == "Hdf5StMan")
+        {
+            stman = new Hdf5StMan(MPI_COMM_WORLD);
+        }
+        else if(stman_type == "AdiosStMan")
+        {
+            stman = new AdiosStMan("POSIX", "", 100, rows/mpiSize);
         }
 
         IPosition array_pos = IPosition(1,cell_size);
