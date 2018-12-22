@@ -30,8 +30,7 @@ bool if_delete = true;
 int main(int argc, char **argv){
 
     int mpiRank, mpiSize;
-    int mpi_provided_mode;
-    MPI_Init_thread(&argc,&argv, MPI_THREAD_MULTIPLE, &mpi_provided_mode);
+    MPI_Init(&argc,&argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
 
@@ -87,8 +86,8 @@ int main(int argc, char **argv){
     hash<string> hash_fn;
     string filename = "/lustre/atlas/scratch/wangj/csc303/data/" + to_string(hash_fn(j.dump()));
 
+    DataManager *stman;
     {
-        DataManager *stman;
         if(stman_type == "Adios2StMan")
         {
             stman = new Adios2StMan(MPI_COMM_WORLD);
@@ -141,6 +140,8 @@ int main(int argc, char **argv){
             }
         }
     }
+    delete stman;
+
     end_time = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
     double rate = totalsize / duration.count();
