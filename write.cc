@@ -19,9 +19,9 @@ using namespace std;
 using namespace nlohmann;
 
 size_t cell_size_min = 10;
-size_t cell_size_max = 30;
+size_t cell_size_max = 25;
 size_t columns_min = 1;
-size_t columns_max = 64;
+size_t columns_max = 32;
 size_t rows_min = 5;
 size_t rows_max = 20;
 
@@ -48,7 +48,6 @@ int main(int argc, char **argv){
     stmans.push_back("Adios2StMan");
     stmans.push_back("Hdf5StMan");
     std::string stman_type = stmans[rand()%3];
-    std::cout << stman_type << std::endl;
 
     auto start_time = std::chrono::system_clock::now();
     auto end_time = std::chrono::system_clock::now();
