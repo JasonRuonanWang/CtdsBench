@@ -19,26 +19,15 @@ using namespace std;
 using namespace nlohmann;
 
 size_t cell_size_min = 10;
-size_t cell_size_max = 25;
+size_t cell_size_max = 20;
 size_t columns_min = 1;
-size_t columns_max = 32;
-size_t rows_min = 10;
-size_t rows_max = 18;
+size_t columns_max = 1;
+size_t rows_min = 5;
+size_t rows_max = 15;
 
 bool if_delete = true;
 
 int main(int argc, char **argv){
-
-    vector<string> stmans;
-    stmans.push_back("AdiosStMan");
-    stmans.push_back("Adios2StMan");
-    stmans.push_back("Hdf5StMan");
-    std::string stman_type = stmans[rand()%3];
-
-    if(stman_type == "AdiosStMan")
-    {
-        size_t columns_max = 1;
-    }
 
     int mpiRank, mpiSize;
     int mpi_provided_mode;
@@ -46,19 +35,47 @@ int main(int argc, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
 
+    std::string stman_type = argv[1];
+
+    if(stman_type == "AdiosStMan")
+    {
+        columns_max = 1;
+    }
+
     srand (static_cast <unsigned> (time(0)));
 
-    float cell_size_exp = cell_size_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(cell_size_max - cell_size_min)) );
+    float cell_size_exp;
+    if(cell_size_max == cell_size_min)
+    {
+        cell_size_exp = cell_size_min;
+    }
+    else
+    {
+        cell_size_exp = cell_size_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(cell_size_max - cell_size_min)) );
+    }
     size_t cell_size = pow(2, cell_size_exp);
-    float rows_exp = rows_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(rows_max - rows_min)) );
-    size_t rows = pow(2, rows_exp);
-    size_t columns = rand() % columns_max + columns_min;
 
+    float rows_exp;
+    if(rows_max == rows_min)
+    {
+        rows_exp = rows_min;
+    }
+    else
+    {
+        rows_exp = rows_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(rows_max - rows_min)) );
+    }
+    size_t rows = pow(2, rows_exp);
+
+    size_t columns = rand() % columns_max + columns_min;
 
     auto start_time = std::chrono::system_clock::now();
     auto end_time = std::chrono::system_clock::now();
 
     double totalsize = sizeof(float) * cell_size * rows * columns;
+    if(mpiRank ==0)
+    {
+        cout << "rows = " << rows << ", columns = " << columns << ", size = "  << cell_size << ", stman = " << stman_type << endl;
+    }
     json j;
     j["rows"] = rows;
     j["columns"] = columns;
@@ -83,6 +100,10 @@ int main(int argc, char **argv){
         else if(stman_type == "AdiosStMan")
         {
             stman = new AdiosStMan("POSIX", "", 100, rows/mpiSize);
+        }
+        else
+        {
+            cout << "unknown stman" << endl;
         }
 
         IPosition array_pos = IPosition(1,cell_size);
