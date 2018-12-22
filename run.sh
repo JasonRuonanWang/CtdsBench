@@ -1,3 +1,6 @@
 #!/bin/bash
 cd $PBS_O_WORKDIR
-aprun -B ./write
+while true
+do
+    aprun -B ./write
+done
