@@ -1,23 +1,21 @@
-import os
 import sys
+import subprocess
 
 nodes = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
 
-stman = sys.argv[1]
+dep = None
 
-cmd = "echo no stman specified"
+def sub(stman, node):
+    global dep
+    cmd = "qsub -A csc303 -l walltime=02:00:00 -l nodes={0} ".format(node)
+    if dep != None:
+        cmd = cmd + "-W depend=afterany:{0} ".format(dep.rstrip("\n\r"))
+    cmd = cmd + stman + ".sh"
+    out = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    dep, stderr = out.communicate()
+    print cmd, dep
 
 for n in nodes:
-    if stman == "Adios2StMan":
-        cmd = "qsub -A csc303 -l walltime=02:00:00 -l nodes={0} /lustre/atlas/scratch/wangj/csc303/a2tests/Adios2StMan.sh".format(n)
-        os.system(cmd)
-        print cmd
-    elif stman == "AdiosStMan":
-        cmd = "qsub -A csc303 -l walltime=02:00:00 -l nodes={0} /lustre/atlas/scratch/wangj/csc303/a1tests/AdiosStMan.sh".format(n)
-        os.system(cmd)
-        print cmd
-    elif stman == "Hdf5StMan":
-        cmd = "qsub -A csc303 -l walltime=02:00:00 -l nodes={0} /lustre/atlas/scratch/wangj/csc303/h5tests/Hdf5StMan.sh".format(n)
-        os.system(cmd)
-        print cmd
+    sub("Adios2StMan", n)
+    sub("Hdf5StMan", n)
 

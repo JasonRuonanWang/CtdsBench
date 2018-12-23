@@ -23,7 +23,7 @@ size_t cell_size_max = 27;
 size_t columns_min = 1;
 size_t columns_max = 1;
 size_t rows_min = 5;
-size_t rows_max = 20;
+size_t rows_max = 10;
 
 int main(int argc, char **argv){
 
