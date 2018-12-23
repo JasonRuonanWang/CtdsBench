@@ -63,7 +63,7 @@ int main(int argc, char **argv){
     {
         rows_exp = rows_min + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(rows_max - rows_min)) );
     }
-    size_t rows = pow(2, rows_exp);
+    size_t rows = pow(2, rows_exp) * mpiSize;
 
     size_t columns = rand() % columns_max + columns_min;
 
