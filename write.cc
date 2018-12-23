@@ -19,13 +19,11 @@ using namespace std;
 using namespace nlohmann;
 
 size_t cell_size_min = 10;
-size_t cell_size_max = 20;
+size_t cell_size_max = 27;
 size_t columns_min = 1;
 size_t columns_max = 1;
 size_t rows_min = 5;
-size_t rows_max = 15;
-
-bool if_delete = true;
+size_t rows_max = 20;
 
 int main(int argc, char **argv){
 
@@ -34,7 +32,9 @@ int main(int argc, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
     MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
 
-    std::string stman_type = argv[1];
+    string stman_type = argv[1];
+
+    string filename = argv[2];
 
     if(stman_type == "AdiosStMan")
     {
@@ -73,7 +73,7 @@ int main(int argc, char **argv){
     double totalsize = sizeof(float) * cell_size * rows * columns;
     if(mpiRank ==0)
     {
-        cout << "rows = " << rows << ", columns = " << columns << ", size = "  << cell_size << ", stman = " << stman_type << endl;
+        cout << "rows = " << rows << ", columns = " << columns << ", size = "  << cell_size << ", stman = " << stman_type << ", filename = " << filename << endl;
     }
     json j;
     j["rows"] = rows;
@@ -82,9 +82,6 @@ int main(int argc, char **argv){
     j["total_bytes"] = totalsize;
     j["manager"] = stman_type;
     j["mpi_size"] = mpiSize;
-
-    hash<string> hash_fn;
-    string filename = "/lustre/atlas/scratch/wangj/csc303/data/" + to_string(hash_fn(j.dump()));
 
     DataManager *stman;
     {
@@ -114,7 +111,6 @@ int main(int argc, char **argv){
             string column_name = "column" + to_string(i);
             td.addColumn (ArrayColumnDesc<Float>(column_name, array_pos, ColumnDesc::FixedShape));
         }
-
 
         SetupNewTable newtab(filename, td, Table::New);
         newtab.bindAll(*stman);
@@ -152,11 +148,6 @@ int main(int argc, char **argv){
     if(mpiRank == 0)
     {
         cout << j.dump() << endl;
-        if(if_delete)
-        {
-            string cmd = "rm -rf " + filename;
-            system(cmd.c_str());
-        }
     }
 
     MPI_Finalize();
