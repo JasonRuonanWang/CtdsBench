@@ -2,6 +2,7 @@ import sys
 import subprocess
 
 nodes = [4096, 2048, 1024, 512, 256, 128, 64, 32, 16]
+nodes = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
 
 dep = None
 
