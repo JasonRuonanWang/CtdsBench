@@ -19,4 +19,5 @@ for n in nodes:
     sub("AdiosStMan", n)
     sub("Adios2StMan", n)
     sub("Hdf5StMan", n)
+    sub("Concat", n)
 

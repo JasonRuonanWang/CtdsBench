@@ -1,7 +1,7 @@
 import sys
 import subprocess
 
-nodes = [1, 2, 4, 8]
+nodes = [1, 2, 4, 8, 16]
 
 def sub(stman, node):
     cmd = "qsub -A csc303 -l walltime=02:00:00 -l nodes={0} {1}.sh".format(node, stman)
@@ -12,4 +12,5 @@ for n in nodes:
     sub("AdiosStMan", n)
     sub("Adios2StMan", n)
     sub("Hdf5StMan", n)
+    sub("Concat", n)
 
