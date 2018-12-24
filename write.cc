@@ -87,7 +87,10 @@ int main(int argc, char **argv){
     {
         if(stman_type == "Adios2StMan")
         {
-            stman = new Adios2StMan(MPI_COMM_WORLD);
+            adios2::Params engineParams = { {"Threads", "4"}, {"MaxBufferSize","1Gb"}};
+            vector<adios2::Params> transportParams;
+            string engineType = "BPFile";
+            stman = new Adios2StMan(MPI_COMM_WORLD, engineType, engineParams, transportParams);
         }
         else if(stman_type == "Hdf5StMan")
         {
@@ -95,7 +98,7 @@ int main(int argc, char **argv){
         }
         else if(stman_type == "AdiosStMan")
         {
-            stman = new AdiosStMan("POSIX", "", 100, rows/mpiSize);
+            stman = new AdiosStMan("POSIX", "", 1000, 1);
         }
         else
         {

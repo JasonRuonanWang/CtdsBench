@@ -16,6 +16,7 @@ def sub(stman, node):
     print cmd, dep
 
 for n in nodes:
+    sub("AdiosStMan", n)
     sub("Adios2StMan", n)
     sub("Hdf5StMan", n)
 
