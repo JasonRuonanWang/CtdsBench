@@ -8,7 +8,7 @@ dep = None
 
 def sub(stman, node):
     global dep
-    cmd = "qsub -A csc303 -l walltime=02:00:00 -l nodes={0} ".format(node)
+    cmd = "qsub -A csc303 -q killable -l walltime=02:00:00 -l nodes={0} ".format(node)
     if dep != None:
         cmd = cmd + "-W depend=afterany:{0} ".format(dep.rstrip("\n\r"))
     cmd = cmd + stman + ".sh"
