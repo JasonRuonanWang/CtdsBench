@@ -73,7 +73,7 @@ int main(int argc, char **argv){
         }
         else if(stman_type == "AdiosStMan")
         {
-            stman = new AdiosStMan("POSIX", "", 1000, 1);
+            stman = new AdiosStMan("POSIX", "verbose=0", 1000, 1);
         }
         else
         {
