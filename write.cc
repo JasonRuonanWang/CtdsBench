@@ -48,7 +48,7 @@ int main(int argc, char **argv){
     double totalsize = sizeof(float) * cell_size * rows * columns;
     if(mpiRank ==0)
     {
-        cout << "rows = " << rows << ", columns = " << columns << ", size = "  << cell_size << ", stman = " << stman_type << ", filename = " << filename << endl;
+        cout << "rows = " << rows << ", columns = " << columns << ", cell size = "  << cell_size << ", table size = "  << cell_size*rows*columns << ", stman = " << stman_type << ", filename = " << filename << endl;
     }
     json j;
     j["rows"] = rows;
@@ -69,7 +69,7 @@ int main(int argc, char **argv){
         }
         else if(stman_type == "Hdf5StMan")
         {
-            stman = new Hdf5StMan(MPI_COMM_WORLD);
+            stman = new Hdf5StMan;
         }
         else if(stman_type == "AdiosStMan")
         {

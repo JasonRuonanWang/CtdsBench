@@ -16,11 +16,11 @@ using namespace std;
 using namespace nlohmann;
 
 size_t cell_size_min = 10;
-size_t cell_size_max = 27;
-size_t columns_min = 2;
-size_t columns_max = 20;
+size_t cell_size_max = 10;
+size_t columns_min = 5;
+size_t columns_max = 5;
 size_t rows_min = 5;
-size_t rows_max = 10;
+size_t rows_max = 5;
 
 template<class T>
 void GenData(Array<T> &arr, IPosition pos, uInt row){
