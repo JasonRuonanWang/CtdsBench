@@ -31,6 +31,6 @@ cl:
 	rm -rf *.casa *.out *.table *.o* *.e*
 
 clean: cl
-	rm -rf write write_concat read *.dSYM *.so *.table
+	rm -rf write write_concat write_example read *.dSYM *.so *.table
 
 re: clean all
