@@ -1,3 +1,5 @@
+#include <adios2.h>
+
 #include "common.h"
 
 int main(int argc, char **argv){
@@ -110,7 +112,7 @@ int main(int argc, char **argv){
         GenData(arr_Float, array_pos, mpiRank);
 
         start_time = std::chrono::system_clock::now();
-        for(int i=mpiRank; i<rows; i+=mpiSize)
+        for(size_t i=mpiRank; i<rows; i+=mpiSize)
         {
             for(auto &j : colvec)
             {
