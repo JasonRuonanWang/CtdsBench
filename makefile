@@ -25,12 +25,12 @@ endif
 
 .PHONY: all cl clean re
 
-all: read write write_concat write_example
+all: read write_fixed write_random write_concat
 
 cl:
 	rm -rf *.casa *.out *.table *.o* *.e*
 
 clean: cl
-	rm -rf write write_concat write_example read *.dSYM *.so *.table
+	rm -rf write_fixed write_random write_concat read *.dSYM *.so *.table
 
 re: clean all
