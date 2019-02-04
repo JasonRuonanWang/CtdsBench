@@ -66,7 +66,7 @@ int main(int argc, char **argv){
         {
             adios2::Params engineParams = { {"Threads", "4"}, {"MaxBufferSize","1Gb"}};
             vector<adios2::Params> transportParams;
-            string engineType = "BPFile";
+            string engineType = "HDF5";
             stman = new Adios2StMan(MPI_COMM_WORLD, engineType, engineParams, transportParams);
         }
 #ifdef HAS_HDF5STMAN

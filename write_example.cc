@@ -122,13 +122,13 @@ void run(int argc, char **argv){
         stman = std::make_unique<Adios2StMan>(MPI_COMM_WORLD, engineType, engineParams, transportParams);
     }
 #ifdef HAS_HDF5STMAN
-    else if(stman_type == "Hdf5StMan")
+    else if(opts.stman_type == "Hdf5StMan")
     {
-        stman = std::make_unique<Hdf5StMan>(Hdf5StMan);
+        stman = std::make_unique<Hdf5StMan>();
     }
 #endif
 #ifdef HAS_ADIOSSTMAN
-    else if(stman_type == "AdiosStMan")
+    else if(opts.stman_type == "AdiosStMan")
     {
         stman = std::make_unique<AdiosStMan>("POSIX", "verbose=0", 1000, 1);
     }
