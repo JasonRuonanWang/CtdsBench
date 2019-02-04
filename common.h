@@ -5,8 +5,12 @@
 #include <casacore/tables/Tables/ArrColDesc.h>
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/DataMan/Adios2StMan.h>
+#ifdef HAS_ADIOSSTMAN
 #include <casacore/tables/DataMan/AdiosStMan.h>
+#endif
+#ifdef HAS_HDF5STMAN
 #include <casacore/tables/DataMan/Hdf5StMan.h>
+#endif
 #include <casacore/casa/namespace.h>
 #include <mpi.h>
 #include <cmath>
@@ -27,5 +31,12 @@ void GenData(Array<T> &arr, IPosition pos, uInt row){
     arr = row + 1;
 }
 
-
-
+#if __cplusplus < 201402L
+namespace std {
+template<typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args)
+{
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+} // namespace std
+#endif // __cplusplus < 201402L

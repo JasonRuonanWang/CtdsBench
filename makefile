@@ -3,26 +3,34 @@ ifeq ($(VENDOR),cray)
 else
 	MPICXX=mpic++
 endif
+ifeq ($(HAS_HDF5STMAN),)
+	HAS_HDF5STMAN=yes
+endif
+ifeq ($(HAS_ADIOSSTMAN),)
+	HAS_ADIOSSTMAN=yes
+endif
 
-CXX=g++
+CXX=$(MPICXX)
+CXXFLAGS+=-std=c++11 -DHAVE_MPI
+LDLIBS=-lcasa_tables -lcasa_casa
 
-CCFLAGS=-std=c++11
-LDFLAGS=-lcasa_tables -lcasa_casa -lhdf5stman -ladiosstman
+ifeq ($(HAS_HDF5STMAN),yes)
+	CXXFLAGS+=-DHAS_HDF5STMAN
+	LDLIBS+=-lhdf5stman
+endif
+ifeq ($(HAS_ADIOSSTMAN),yes)
+	CXXFLAGS+=-DHAS_ADIOSSTMAN
+	LDLIBS+=-ladiosstman
+endif
 
-mpi:write.cc read.cc
-	$(MPICXX) -g write.cc $(CCFLAGS) $(LDFLAGS) -o write -DHAVE_MPI
-	$(MPICXX) -g write_concat.cc $(CCFLAGS) $(LDFLAGS) -o write_concat -DHAVE_MPI
-	$(MPICXX) -g write_example.cc $(CCFLAGS) $(LDFLAGS) -o write_example -DHAVE_MPI
-	$(MPICXX) -g read.cc $(CCFLAGS) $(LDFLAGS) -o read -DHAVE_MPI
+.PHONY: all cl clean re
 
-$(TARGET): $(TARGET:=.cc)
-	$(CXX) $@.cc -o $@ $(CCFLAGS) $(LDFLAGS)
-
+all: read write write_concat write_example
 
 cl:
 	rm -rf *.casa *.out *.table *.o* *.e*
 
-clean:cl
-	rm -rf write write_concat read *.dSYM *.so *.table
+clean: cl
+	rm -rf write write_concat write_example read *.dSYM *.so *.table
 
-re: clean mpi
+re: clean all
