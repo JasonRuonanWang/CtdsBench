@@ -67,14 +67,18 @@ int main(int argc, char **argv){
             string engineType = "BPFile";
             stman = new Adios2StMan(MPI_COMM_WORLD, engineType, engineParams, transportParams);
         }
+#ifdef HAS_HDF5STMAN
         else if(stman_type == "Hdf5StMan")
         {
             stman = new Hdf5StMan;
         }
+#endif
+#ifdef HAS_ADIOSSTMAN
         else if(stman_type == "AdiosStMan")
         {
             stman = new AdiosStMan("POSIX", "verbose=0", 1000, 1);
         }
+#endif
         else
         {
             cout << "unknown stman" << endl;
