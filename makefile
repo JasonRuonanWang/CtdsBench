@@ -23,16 +23,14 @@ ifeq ($(HAS_ADIOSSTMAN),yes)
 	LDLIBS+=-ladiosstman
 endif
 
-mpi:write.cc read.cc
-	$(CXX) -g write.cc $(CXXFLAGS) $(LDLIBS) $(LDFLAGS) -o write
-	$(CXX) -g write_concat.cc $(CXXFLAGS) $(LDLIBS) $(LDFLAGS) -o write_concat
-	$(CXX) -g write_example.cc $(CXXFLAGS) $(LDLIBS) $(LDFLAGS) -o write_example
-	$(CXX) -g read.cc $(CXXFLAGS) $(LDLIBS) $(LDFLAGS) -o read
+.PHONY: all cl clean re
+
+all: read write write_concat write_example
 
 cl:
 	rm -rf *.casa *.out *.table *.o* *.e*
 
-clean:cl
+clean: cl
 	rm -rf write write_concat read *.dSYM *.so *.table
 
-re: clean mpi
+re: clean all
