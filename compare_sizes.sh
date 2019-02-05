@@ -17,7 +17,7 @@ for stman in none Adios2StMan Adios2StMan-HDF5; do
 			for cellsize in 4 8 16 32 64 128 256 512 1024; do
 
 				output=output/${stman}_${dtype}_${dims}d_${cellsize}
-				msg=`./write_example $stman ${output} $cellsize $dims $dtype $rows`
+				msg=`./write_fixed $stman ${output} $cellsize $dims $dtype $rows`
 
 				if [ $? -ne 0 ]; then
 					echo "Failure during execution of write_example: $msg" 1>&2
