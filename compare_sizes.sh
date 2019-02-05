@@ -4,10 +4,14 @@ rm -rf output
 mkdir output
 
 if [ $# -lt 1 ]; then
-	echo "Usage: $0 <nrows>" 1>&2
+	echo "Usage: $0 <nrows> [remove-output]" 1>&2
 	exit 1
 fi
 rows=$1
+remove_output=no
+if [ $# -ge 2 -a "$2" = "remove-output" ]; then
+	remove_output=yes
+fi
 
 echo "      stman    dtype dims cellsize expect [MB] real [MB] rel. diff [%]"
 echo "=========== ======== ==== ======== =========== ========= ============="
@@ -30,6 +34,10 @@ for stman in none Adios2StMan Adios2StMan-HDF5; do
 				expected=`echo "scale=2; $expected / 1024. / 1024" | bc`
 				real=`echo "scale=2; $real / 1024. / 1024" | bc`
 				printf "%11s %8s %4d %8d %11s %9s %13s\n" $stman $dtype $dims $cellsize $expected $real $diff
+
+				if [ "$remove_output" = "yes" ]; then
+					rm -rf $output
+				fi
 			done
 		done
 	done
