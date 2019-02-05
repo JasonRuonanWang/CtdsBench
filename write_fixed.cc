@@ -90,6 +90,11 @@ void write_to_table(const options &opts, IPosition &array_pos, std::unique_ptr<D
     }
 }
 
+std::unique_ptr<Adios2StMan> make_adios2_stman(const std::string &type, const adios2::Params &params)
+{
+    return std::make_unique<Adios2StMan>(MPI_COMM_WORLD, type, params, std::vector<adios2::Params>{});
+}
+
 void run(int argc, char **argv){
 
     options opts;
@@ -116,10 +121,11 @@ void run(int argc, char **argv){
     std::unique_ptr<DataManager> stman;
     if (opts.stman_type == "Adios2StMan")
     {
-        adios2::Params engineParams = {};
-        vector<adios2::Params> transportParams;
-        string engineType = "BPFile";
-        stman = std::make_unique<Adios2StMan>(MPI_COMM_WORLD, engineType, engineParams, transportParams);
+        stman = make_adios2_stman("BPFile", {});
+    }
+    else if (opts.stman_type == "Adios2StMan-HDF5")
+    {
+        stman = make_adios2_stman("HDF5", {{"Threads", "4"}, {"MaxBufferSize", "1Gb"}});
     }
 #ifdef HAS_HDF5STMAN
     else if(opts.stman_type == "Hdf5StMan")
