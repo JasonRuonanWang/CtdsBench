@@ -11,7 +11,7 @@ rows=$1
 
 echo "      stman    dtype dims cellsize expect [MB] real [MB] rel. diff [%]"
 echo "=========== ======== ==== ======== =========== ========= ============="
-for stman in none Adios2StMan; do
+for stman in none Adios2StMan Adios2StMan-HDF5; do
 	for dtype in float double complex dcomplex; do
 		for dims in 1 2; do
 			for cellsize in 4 8 16 32 64 128 256 512 1024; do
