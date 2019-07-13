@@ -10,10 +10,10 @@ struct options {
     int mpi_size = 1;
     size_t columns = 1;
     size_t rows = 10000;
-    size_t cell_size = 1;
+    size_t cell_size = 100;
     int n_dims = 1;
-    std::string filename;
-    std::string stman_type {"none"};
+    std::string filename = "test";
+    std::string stman_type {"Adios2StMan"};
     std::string data_type {"float"};
 };
 
@@ -85,6 +85,7 @@ void write_to_table(const options &opts, IPosition &array_pos, std::unique_ptr<D
     {
         for (auto &k : colvec)
         {
+            std::cout << "Put one row"<<i<<"\n";
             k.put(i, arr);
         }
     }
@@ -98,30 +99,40 @@ std::unique_ptr<Adios2StMan> make_adios2_stman(const std::string &type, const ad
 void run(int argc, char **argv){
 
     options opts;
-    MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &opts.mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &opts.mpi_size);
 
-    opts.stman_type = argv[1];
-    opts.filename = argv[2];
-    if (argc > 3) {
-      opts.cell_size = std::stold(argv[3]);
+    if (argc > 1)
+    {
+        opts.stman_type = argv[1];
     }
-    if (argc > 4) {
-      opts.n_dims = std::stod(argv[4]);
+    if (argc > 2)
+    {
+        opts.filename = argv[2];
     }
-    if (argc > 5) {
-      opts.data_type = argv[5];
+    if (argc > 3)
+    {
+        opts.cell_size = std::stold(argv[3]);
     }
-    if (argc > 6) {
-      opts.rows = std::stold(argv[6]);
+    if (argc > 4)
+    {
+        opts.n_dims = std::stod(argv[4]);
+    }
+    if (argc > 5)
+    {
+        opts.data_type = argv[5];
+    }
+    if (argc > 6)
+    {
+        opts.rows = std::stold(argv[6]);
     }
 
     // The storage manager to use
     std::unique_ptr<DataManager> stman;
     if (opts.stman_type == "Adios2StMan")
     {
-        stman = make_adios2_stman("BPFile", {});
+        stman = make_adios2_stman("bp", {});
+        stman = make_adios2_stman("table", {});
     }
     else if (opts.stman_type == "Adios2StMan-HDF5")
     {
@@ -169,13 +180,22 @@ void run(int argc, char **argv){
 
 int main(int argc, char **argv)
 {
-    try {
-        MPI_Init(&argc, &argv);
+    std::cout << "before MPI_Init()" << std::endl;
+    MPI_Init(&argc, &argv);
+    std::cout << "after MPI_Init()" << std::endl;
+
+    try
+    {
         run(argc, argv);
-    } catch (std::exception &e) {
+    }
+    catch (std::exception &e)
+    {
         std::cerr << e.what() << std::endl;
         return 1;
     }
+
+    std::cout << "before MPI_Finalize()" << std::endl;
     MPI_Finalize();
+    std::cout << "after MPI_Finalize()" << std::endl;
     return 0;
 }

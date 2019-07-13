@@ -4,14 +4,14 @@ else
 	MPICXX=mpic++
 endif
 ifeq ($(HAS_HDF5STMAN),)
-	HAS_HDF5STMAN=yes
+	HAS_HDF5STMAN=no
 endif
 ifeq ($(HAS_ADIOSSTMAN),)
-	HAS_ADIOSSTMAN=yes
+	HAS_ADIOSSTMAN=no
 endif
 
 CXX=$(MPICXX)
-CXXFLAGS+=-std=c++11 -DHAVE_MPI
+CXXFLAGS+=-std=c++11 -DHAVE_MPI -g
 LDLIBS=-lcasa_tables -lcasa_casa
 
 ifeq ($(HAS_HDF5STMAN),yes)
