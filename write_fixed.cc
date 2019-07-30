@@ -1,5 +1,6 @@
 #include <memory>
 #include <random>
+#include <chrono>
 
 #include <adios2.h>
 
@@ -10,10 +11,11 @@ struct options {
     int mpi_size = 1;
     size_t columns = 1;
     size_t rows = 10000;
-    size_t cell_size = 100;
+    size_t cell_size = 1000;
     int n_dims = 1;
     std::string filename = "test";
     std::string stman_type {"Adios2StMan"};
+    std::string engine_type {"table"};
     std::string data_type {"float"};
 };
 
@@ -21,6 +23,7 @@ template<typename T>
 void fill_array(Array<T> &array)
 {
     array = T (std::random_device()());
+    indgen(array);
 }
 
 template<typename C>
@@ -46,16 +49,6 @@ void fill_array<DComplex>(Array<DComplex> &array)
 template<typename T>
 void write_to_table(const options &opts, IPosition &array_pos, std::unique_ptr<DataManager> &&stman)
 {
-    if (opts.mpi_rank == 0)
-    {
-        std::cout << "rows = " << opts.rows << ", columns = " << opts.columns
-                  << ", cell size = "  << opts.cell_size
-                  << ", total bytes = "
-                  << opts.cell_size * opts.rows * opts.columns * sizeof(T)
-                  << ", stman = " << opts.stman_type << ", filename = "
-                  << opts.filename << '\n';
-    }
-
     TableDesc td("", "1", TableDesc::Scratch);
 
     for (size_t i = 0; i < opts.columns; ++i)
@@ -68,6 +61,11 @@ void write_to_table(const options &opts, IPosition &array_pos, std::unique_ptr<D
     if (stman)
     {
         newtab.bindAll(*stman);
+    }
+    else
+    {
+        std::cout << "Invalid StMan" << std::endl;
+        exit(0);
     }
     Table tab(MPI_COMM_WORLD, newtab, opts.rows);
 
@@ -83,9 +81,9 @@ void write_to_table(const options &opts, IPosition &array_pos, std::unique_ptr<D
     fill_array(arr);
     for (size_t i = opts.mpi_rank; i < opts.rows; i += opts.mpi_size)
     {
+        std::cout << "Rank [" << opts.mpi_rank << "] put Row " << i << std::endl;
         for (auto &k : colvec)
         {
-            std::cout << "Put one row"<<i<<"\n";
             k.put(i, arr);
         }
     }
@@ -98,6 +96,8 @@ std::unique_ptr<Adios2StMan> make_adios2_stman(const std::string &type, const ad
 
 void run(int argc, char **argv){
 
+    auto start = std::chrono::system_clock::now();
+
     options opts;
     MPI_Comm_rank(MPI_COMM_WORLD, &opts.mpi_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &opts.mpi_size);
@@ -108,31 +108,34 @@ void run(int argc, char **argv){
     }
     if (argc > 2)
     {
-        opts.filename = argv[2];
+        opts.engine_type = argv[2];
     }
     if (argc > 3)
     {
-        opts.cell_size = std::stold(argv[3]);
+        opts.rows = std::stold(argv[3]);
     }
     if (argc > 4)
     {
-        opts.n_dims = std::stod(argv[4]);
+        opts.cell_size = std::stold(argv[4]);
     }
     if (argc > 5)
     {
-        opts.data_type = argv[5];
+        opts.n_dims = std::stod(argv[5]);
     }
     if (argc > 6)
     {
-        opts.rows = std::stold(argv[6]);
+        opts.data_type = argv[6];
+    }
+    if (argc > 7)
+    {
+        opts.filename = argv[7];
     }
 
     // The storage manager to use
     std::unique_ptr<DataManager> stman;
     if (opts.stman_type == "Adios2StMan")
     {
-        stman = make_adios2_stman("bp", {});
-        stman = make_adios2_stman("table", {});
+        stman = make_adios2_stman(opts.engine_type, {});
     }
     else if (opts.stman_type == "Adios2StMan-HDF5")
     {
@@ -150,6 +153,10 @@ void run(int argc, char **argv){
         stman = std::make_unique<AdiosStMan>("POSIX", "verbose=0", 1000, 1);
     }
 #endif
+    else if(opts.stman_type == "StandardStMan")
+    {
+        stman = std::make_unique<StandardStMan>();
+    }
 
     // The dimensionality
     auto array_pos = std::make_unique<IPosition>(1, opts.cell_size);
@@ -176,13 +183,31 @@ void run(int argc, char **argv){
     else {
         std::runtime_error("Only float/double/complex/dcomplex data types supported in writer_example");
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration = end-start;
+    if (opts.mpi_rank == 0)
+    {
+        std::cout
+            << "stman = " << opts.stman_type
+            << ", engine = " << opts.engine_type
+            << ", rows = " << opts.rows
+            << ", columns = " << opts.columns
+            << ", cell size = " << opts.cell_size
+            << ", total elements = " << opts.cell_size * opts.rows * opts.columns
+            << ", data type = " << opts.data_type
+            << ", filename = " << opts.filename
+            << ", total time = " << duration.count()
+            << std::endl;
+    }
+
 }
 
 int main(int argc, char **argv)
 {
-    std::cout << "before MPI_Init()" << std::endl;
     MPI_Init(&argc, &argv);
-    std::cout << "after MPI_Init()" << std::endl;
 
     try
     {
@@ -194,8 +219,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::cout << "before MPI_Finalize()" << std::endl;
     MPI_Finalize();
-    std::cout << "after MPI_Finalize()" << std::endl;
     return 0;
 }

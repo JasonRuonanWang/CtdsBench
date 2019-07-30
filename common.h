@@ -5,6 +5,8 @@
 #include <casacore/tables/Tables/ArrColDesc.h>
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/DataMan/Adios2StMan.h>
+#include <casacore/tables/DataMan/StandardStMan.h>
+#include <casacore/tables/DataMan/TiledShapeStMan.h>
 #ifdef HAS_ADIOSSTMAN
 #include <casacore/tables/DataMan/AdiosStMan.h>
 #endif
